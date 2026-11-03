@@ -1,0 +1,713 @@
+<!doctype html>
+<html lang="ms">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#dff1fb">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Tarik Tali Matematik</title>
+  <style>
+:root {
+  --bg: #dff1fb;
+  --bg2: #bfe3f6;
+  --ink: #1d2b45;
+  --muted: #5b6b86;
+  --p1: #e2463f;
+  --p1d: #b52f29;
+  --p2: #2f6fe0;
+  --p2d: #2153b0;
+  --card: #ffffff;
+  --gold: #f6c343;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; height: 100%; }
+body {
+  font-family: "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+  color: var(--ink);
+  background: linear-gradient(180deg, var(--bg), var(--bg2));
+  overflow: hidden;
+  user-select: none;
+  touch-action: manipulation;
+}
+.screen { display: none; height: 100%; padding: 16px; overflow: auto; }
+.screen.active { display: flex; flex-direction: column; align-items: center; }
+h1 { font-size: clamp(32px, 6vw, 64px); margin: 24px 0 4px; text-align: center; color: var(--p1); text-shadow: 3px 3px 0 #fff; }
+h1 span { color: var(--p2); }
+.sub { color: var(--muted); text-align: center; margin: 4px 0 16px; }
+.err { color: var(--p1d); min-height: 1.2em; font-weight: bold; text-align: center; }
+
+.field { display: flex; flex-direction: column; gap: 4px; margin: 8px 0 16px; align-items: center; }
+.field label { font-weight: bold; color: var(--muted); }
+select, input {
+  font: inherit; font-size: 18px; padding: 10px 14px; border-radius: 12px;
+  border: 2px solid #c6d6ea; background: #fff; color: var(--ink); min-width: 200px;
+}
+.cards { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; width: 100%; max-width: 820px; }
+.card {
+  background: var(--card); border-radius: 20px; padding: 20px; flex: 1 1 300px; max-width: 390px;
+  display: flex; flex-direction: column; gap: 10px; box-shadow: 0 8px 0 #b3cde3;
+}
+.card h2 { margin: 0; }
+.card p { margin: 0; color: var(--muted); }
+.names { display: flex; gap: 8px; }
+.names input { min-width: 0; flex: 1; }
+.names input:first-child { border-color: var(--p1); }
+.names input:last-child { border-color: var(--p2); }
+.join { display: flex; gap: 8px; }
+.join input { min-width: 0; flex: 1; text-align: center; letter-spacing: 4px; }
+
+.btn {
+  font: inherit; font-weight: bold; font-size: 20px; border: 0; border-radius: 14px;
+  padding: 12px 22px; cursor: pointer; background: #e8eef7; color: var(--ink);
+  box-shadow: 0 5px 0 #b6c3d6; transition: transform .05s;
+}
+.btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #b6c3d6; }
+.btn.red { background: var(--p1); color: #fff; box-shadow: 0 5px 0 var(--p1d); }
+.btn.blue { background: var(--p2); color: #fff; box-shadow: 0 5px 0 var(--p2d); }
+.btn.ghost { background: transparent; box-shadow: none; color: var(--muted); }
+.btn.small { font-size: 18px; padding: 6px 12px; }
+
+/* LOBBY */
+#lobby h2 { margin: 40px 0 0; }
+.code { font-size: 72px; font-weight: bold; letter-spacing: 12px; color: var(--p2); background: #fff; padding: 6px 28px; border-radius: 20px; margin: 8px 0; }
+.lobbyPlayers { display: flex; align-items: center; gap: 16px; margin: 16px 0; }
+.lp { background: #fff; border-radius: 16px; padding: 14px 20px; min-width: 150px; text-align: center; display: flex; flex-direction: column; }
+.lp.p1 { border: 3px solid var(--p1); } .lp.p2 { border: 3px solid var(--p2); }
+.lp small { color: #2a9d55; font-weight: bold; min-height: 1.2em; }
+.vs { font-weight: bold; font-size: 24px; color: var(--muted); }
+#btnReady { margin-top: 8px; min-width: 200px; }
+
+/* GAME */
+#game.active { padding: 10px; position: relative; }
+.topbar { width: 100%; display: flex; align-items: center; justify-content: space-between; }
+.topbar .title { font-weight: bold; font-size: clamp(16px, 2.4vw, 26px); }
+.timer { font-size: 28px; font-weight: bold; background: #fff; border-radius: 12px; padding: 2px 14px; min-width: 64px; text-align: center; }
+.timer.low { color: #fff; background: var(--p1); }
+
+.board { flex: 1; width: 100%; display: grid; grid-template-columns: minmax(200px, 300px) 1fr minmax(200px, 300px); gap: 12px; align-items: center; min-height: 0; }
+.panel { background: #fff; border-radius: 20px; padding: 14px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 6px 0 #b3cde3; position: relative; }
+.panel.p1 { border-top: 10px solid var(--p1); }
+.panel.p2 { border-top: 10px solid var(--p2); }
+.pname { font-weight: bold; text-align: center; color: var(--muted); }
+.question { font-size: clamp(26px, 3.4vw, 40px); font-weight: bold; text-align: center; color: #fff; border-radius: 12px; padding: 8px; }
+.p1 .question { background: var(--p1); }
+.p2 .question { background: var(--p2); }
+.display { height: 52px; border: 3px solid #d5e1ef; border-radius: 12px; font-size: 34px; font-weight: bold; text-align: right; padding: 0 12px; line-height: 46px; }
+.keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.keypad button {
+  font: inherit; font-weight: bold; font-size: clamp(22px, 2.6vw, 32px); padding: 10px 0; border-radius: 12px; border: 0;
+  background: #eef3fa; color: var(--ink); box-shadow: 0 4px 0 #c8d4e4; cursor: pointer; touch-action: none;
+}
+.keypad button.pressed { transform: translateY(3px); box-shadow: 0 1px 0 #c8d4e4; }
+.keypad .kc { background: #ffd9d6; color: var(--p1d); }
+.keypad .kok { background: #2a9d55; color: #fff; box-shadow: 0 4px 0 #1d7540; }
+.panel.ok .display { border-color: #2a9d55; background: #e3f7ea; }
+.panel.bad { animation: shake .3s; }
+.panel.bad .display { border-color: var(--p1); background: #ffe6e4; }
+.panel.locked .keypad { opacity: .5; pointer-events: none; }
+.panel.waiting { justify-content: center; align-items: center; min-height: 300px; color: var(--muted); }
+.panel.waiting .big { font-size: 64px; font-weight: bold; }
+@keyframes shake { 0%,100% { transform: translateX(0) } 25% { transform: translateX(-8px) } 75% { transform: translateX(8px) } }
+
+.arena { display: flex; flex-direction: column; align-items: center; gap: 10px; min-width: 0; }
+.scores { display: flex; gap: 40px; font-size: 40px; font-weight: bold; }
+.sc.p1 { color: var(--p1); } .sc.p2 { color: var(--p2); }
+.field-zone { position: relative; width: 100%; height: 190px; overflow: hidden; border-radius: 20px; background: #9ed27a; box-shadow: inset 0 -12px 0 #7cb85a; }
+.zone { position: absolute; top: 0; bottom: 0; width: 18%; opacity: .25; }
+.zone.left { left: 0; background: var(--p1); } .zone.right { right: 0; background: var(--p2); }
+.centerline { position: absolute; left: 50%; top: 0; bottom: 0; border-left: 4px dashed #fff; }
+.tug { position: absolute; left: 50%; bottom: 22px; display: flex; align-items: flex-end; transform: translateX(-50%); transition: transform .35s cubic-bezier(.3,1.6,.5,1); }
+.rope { width: clamp(80px, 16vw, 200px); height: 8px; background: repeating-linear-gradient(45deg, #b27b3f 0 8px, #d4a160 8px 16px); border-radius: 4px; margin: 0 -6px 46px; position: relative; }
+.flag { position: absolute; left: 50%; top: -6px; width: 14px; height: 20px; background: var(--gold); transform: translateX(-50%); border-radius: 3px; border: 2px solid #b8891a; }
+.char { width: 70px; height: 100px; transition: transform .2s; transform-origin: bottom center; }
+.char svg { width: 100%; height: 100%; }
+.char.p1 { transform: rotate(-8deg); } .char.p2 { transform: rotate(8deg) scaleX(-1); }
+.char.p1.pull { transform: rotate(-22deg) translateX(-6px); }
+.char.p2.pull { transform: rotate(22deg) scaleX(-1) translateX(-6px); }
+.names-row { width: 100%; display: flex; justify-content: space-between; font-weight: bold; font-size: 20px; }
+.names-row .p1 { color: var(--p1); } .names-row .p2 { color: var(--p2); }
+.hint { color: var(--muted); margin: 0; }
+
+/* OVERLAYS */
+.overlay { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(15, 25, 45, .82); z-index: 10; }
+.overlay.show { display: flex; }
+#cdText { font-size: min(30vw, 260px); font-weight: bold; color: #fff; animation: pop .9s ease-out; }
+@keyframes pop { from { transform: scale(1.6); opacity: 0 } 30% { opacity: 1 } to { transform: scale(1) } }
+.resultBox { background: #fff; border-radius: 24px; padding: 28px 36px; text-align: center; display: flex; flex-direction: column; gap: 10px; animation: pop .5s; min-width: 280px; }
+.resultBox h2 { margin: 0; font-size: 34px; }
+.trophy { font-size: 72px; }
+
+/* Skrin kecil: susun menegak */
+@media (max-width: 820px) {
+  .board { grid-template-columns: 1fr 1fr; grid-template-areas: "arena arena" "p1 p2"; align-items: start; }
+  .arena { grid-area: arena; }
+  #panel0 { grid-area: p1; } #panel1 { grid-area: p2; }
+  .panel { padding: 8px; gap: 6px; }
+  .field-zone { height: 150px; }
+  .char { width: 52px; height: 76px; }
+  .rope { margin-bottom: 34px; }
+  .scores { font-size: 28px; }
+  .hint { display: none; }
+  .board.online { grid-template-columns: 1fr; grid-template-areas: "arena" "me"; }
+  .board.online .panel.waiting { display: none; }
+  .board.online .panel:not(.waiting) { grid-area: me; }
+}
+
+/* ---------- 1 phone, 2 pemain (potret): berhadapan ---------- */
+@media (max-width: 820px) and (orientation: portrait) {
+  #game.active { padding: 6px; height: 100dvh; }
+  .topbar { position: absolute; top: 50%; left: 6px; right: 6px; transform: translateY(-50%); z-index: 2; pointer-events: none; }
+  .topbar > * { pointer-events: auto; }
+  .topbar .title { display: none; }
+  .timer { font-size: 22px; padding: 0 10px; min-width: 48px; }
+  .board.local {
+    grid-template-columns: 1fr; grid-template-rows: 1fr auto 1fr;
+    grid-template-areas: "p1" "arena" "p2"; height: 100%; gap: 6px; align-items: stretch;
+  }
+  .board.local #panel0 { transform: rotate(180deg); }
+  .board.local .panel { justify-content: space-between; min-height: 0; }
+  .board.local .pname { font-size: 14px; }
+  .board.local .question { font-size: 30px; padding: 4px; }
+  .board.local .display { height: 44px; line-height: 38px; font-size: 28px; }
+  .board.local .keypad { flex: 1; gap: 6px; grid-auto-rows: 1fr; min-height: 0; }
+  .board.local .keypad button { padding: 0; font-size: 26px; }
+  .board.local .arena { gap: 0; }
+  .board.local .scores { display: none; }
+  .board.local .names-row { display: none; }
+  .board.local .field-zone { height: 96px; }
+  .board.local .char { width: 42px; height: 60px; }
+  .board.local .rope { margin-bottom: 26px; }
+}
+
+/* Phone melintang: kecilkan papan kekunci */
+@media (max-height: 500px) and (orientation: landscape) {
+  #game.active { padding: 4px; }
+  .topbar .title { font-size: 16px; }
+  .board { grid-template-columns: minmax(170px, 240px) 1fr minmax(170px, 240px); gap: 6px; }
+  .panel { padding: 6px; gap: 4px; }
+  .question { font-size: 22px; padding: 2px; }
+  .display { height: 34px; line-height: 28px; font-size: 22px; }
+  .keypad { gap: 4px; }
+  .keypad button { font-size: 20px; padding: 4px 0; }
+  .pname, .hint { display: none; }
+  .field-zone { height: 130px; }
+  .char { width: 50px; height: 72px; }
+  .rope { margin-bottom: 32px; }
+  .scores { font-size: 26px; }
+}
+
+</style>
+</head>
+<body>
+  <!-- MENU -->
+  <section id="menu" class="screen active">
+    <h1>Tarik Tali <span>Matematik</span></h1>
+    <p class="sub">Jawab soalan dengan pantas untuk menarik tali ke pihak anda!</p>
+
+    <div class="field">
+      <label for="level">Jenis soalan</label>
+      <select id="level"></select>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <h2>Satu Skrin</h2>
+        <p>2 pemain berkongsi satu skrin / smartboard.</p>
+        <div class="names">
+          <input id="n1" placeholder="Nama Pemain 1" maxlength="14">
+          <input id="n2" placeholder="Nama Pemain 2" maxlength="14">
+        </div>
+        <button class="btn red" id="btnLocal">Main</button>
+      </div>
+      <p class="err" id="menuErr"></p>
+    </div>
+  </section>
+
+  <!-- LOBBY -->
+  <section id="lobby" class="screen">
+    <h2>Kod Bilik</h2>
+    <div class="code" id="lobbyCode">----</div>
+    <p class="sub">Kongsi kod ini dengan lawan anda.</p>
+    <div class="lobbyPlayers">
+      <div class="lp p1"><b id="lp1">Menunggu…</b><small id="lr1"></small></div>
+      <div class="vs">VS</div>
+      <div class="lp p2"><b id="lp2">Menunggu…</b><small id="lr2"></small></div>
+    </div>
+    <div class="field" id="lobbyLevelWrap">
+      <label for="lobbyLevel">Jenis soalan</label>
+      <select id="lobbyLevel"></select>
+    </div>
+    <button class="btn red" id="btnReady">Sedia!</button>
+    <button class="btn ghost" id="btnLeave">Keluar</button>
+    <p class="err" id="lobbyMsg"></p>
+  </section>
+
+  <!-- GAME -->
+  <section id="game" class="screen">
+    <header class="topbar">
+      <button class="btn ghost small" id="btnQuit">✕</button>
+      <div class="title">Tarik Tali Matematik</div>
+      <div class="timer" id="timer">60</div>
+    </header>
+
+    <div class="board">
+      <div class="panel p1" id="panel0"></div>
+
+      <div class="arena">
+        <div class="scores"><span id="s0" class="sc p1">0</span><span id="s1" class="sc p2">0</span></div>
+        <div class="field-zone">
+          <div class="zone left"></div><div class="centerline"></div><div class="zone right"></div>
+          <div class="tug" id="tug">
+            <div class="char p1" id="c0"></div>
+            <div class="rope"><div class="flag"></div></div>
+            <div class="char p2" id="c1"></div>
+          </div>
+        </div>
+        <div class="names-row"><span id="gn0" class="p1"></span><span id="gn1" class="p2"></span></div>
+        <p class="hint">Jawab soalan untuk menarik tali!</p>
+      </div>
+
+      <div class="panel p2" id="panel1"></div>
+    </div>
+  </section>
+
+  <!-- OVERLAYS -->
+  <div class="overlay" id="countdown"><div id="cdText">3</div></div>
+  <div class="overlay" id="result">
+    <div class="resultBox">
+      <div class="trophy">🏆</div>
+      <h2 id="resTitle">Pemain 1 Menang!</h2>
+      <p id="resScore"></p>
+      <button class="btn red" id="btnAgain">Main Lagi</button>
+      <button class="btn ghost" id="btnMenu">Menu</button>
+    </div>
+  </div>
+
+  <template id="panelTpl">
+    <div class="pname"></div>
+    <div class="question">? </div>
+    <div class="display"></div>
+    <div class="keypad">
+      <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button>
+      <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button>
+      <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button>
+      <button data-k="C" class="kc">C</button><button data-k="0">0</button><button data-k="OK" class="kok">OK</button>
+    </div>
+  </template>
+
+  <script>
+// Logik dikongsi antara pelayan (Node) dan pelayar.
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.TT = factory();
+})(typeof self !== 'undefined' ? self : this, function () {
+  const WIN_STEPS = 6;        // langkah tali untuk menang terus
+  const GAME_SECONDS = 60;    // masa satu pusingan
+  const WRONG_LOCK_MS = 800;  // denda jawapan salah
+
+  const LEVELS = {
+    tambah: 'Tambah & Tolak',
+    darab: 'Sifir Darab',
+    bahagi: 'Bahagi',
+    campur: 'Campur',
+  };
+
+  function rnd(a, b) { return a + Math.floor(Math.random() * (b - a + 1)); }
+
+  function makeQuestion(level) {
+    if (level === 'campur') level = ['tambah', 'darab', 'bahagi'][rnd(0, 2)];
+    if (level === 'tambah') {
+      if (Math.random() < 0.5) {
+        const a = rnd(2, 50), b = rnd(2, 49);
+        return { text: `${a} + ${b} = ?`, answer: a + b };
+      }
+      const a = rnd(10, 99), b = rnd(1, a);
+      return { text: `${a} − ${b} = ?`, answer: a - b };
+    }
+    if (level === 'bahagi') {
+      const b = rnd(2, 9), ans = rnd(2, 10);
+      return { text: `${b * ans} ÷ ${b} = ?`, answer: ans };
+    }
+    const a = rnd(2, 9), b = rnd(2, 9);
+    return { text: `${a} × ${b} = ?`, answer: a * b };
+  }
+
+  // pos < 0 → tali ke kiri (Pemain 1), pos > 0 → ke kanan (Pemain 2)
+  function winnerFromPos(pos) {
+    if (pos < 0) return 0;
+    if (pos > 0) return 1;
+    return -1; // seri
+  }
+
+  return { WIN_STEPS, GAME_SECONDS, WRONG_LOCK_MS, LEVELS, makeQuestion, winnerFromPos };
+});
+
+</script>
+  <script>
+/* global TT */
+(() => {
+  const $ = id => document.getElementById(id);
+  const screens = ['menu', 'lobby', 'game'];
+  function show(id) { screens.forEach(s => $(s).classList.toggle('active', s === id)); }
+
+  // ---------- Bunyi ringkas (WebAudio) ----------
+  let actx = null;
+  function beep(freq, dur = 0.1, type = 'sine', vol = 0.15) {
+    try {
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      const o = actx.createOscillator(), g = actx.createGain();
+      o.type = type; o.frequency.value = freq;
+      g.gain.setValueAtTime(vol, actx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + dur);
+      o.connect(g).connect(actx.destination);
+      o.start(); o.stop(actx.currentTime + dur);
+    } catch (e) { /* tiada audio */ }
+  }
+  const sfx = {
+    key: () => beep(600, 0.04, 'square', 0.05),
+    ok: () => { beep(660, 0.08); setTimeout(() => beep(990, 0.12), 70); },
+    bad: () => beep(140, 0.25, 'sawtooth', 0.12),
+    tick: () => beep(440, 0.12, 'triangle'),
+    go: () => beep(880, 0.35, 'triangle'),
+    win: () => [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => beep(f, 0.18, 'triangle'), i * 130)),
+  };
+
+  // ---------- Watak (SVG asli) ----------
+  function charSVG(shirt, shirtDark, hair) {
+    return `<svg viewBox="0 0 60 86" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+      <rect x="16" y="70" width="10" height="14" fill="#2d3550"/><rect x="32" y="70" width="10" height="14" fill="#2d3550"/>
+      <rect x="14" y="82" width="13" height="4" fill="#111"/><rect x="31" y="82" width="13" height="4" fill="#111"/>
+      <rect x="14" y="40" width="30" height="32" rx="2" fill="${shirt}"/>
+      <rect x="14" y="64" width="30" height="8" fill="${shirtDark}"/>
+      <rect x="38" y="44" width="20" height="8" fill="${shirt}"/>
+      <rect x="54" y="43" width="6" height="10" fill="#f2c39b"/>
+      <rect x="12" y="8" width="34" height="32" rx="3" fill="#f2c39b"/>
+      <rect x="10" y="4" width="38" height="10" fill="${hair}"/><rect x="10" y="4" width="8" height="22" fill="${hair}"/>
+      <rect x="30" y="20" width="5" height="6" fill="#1d2b45"/><rect x="40" y="20" width="5" height="6" fill="#1d2b45"/>
+      <rect x="34" y="31" width="10" height="3" fill="#b5523b"/>
+      <rect x="20" y="26" width="5" height="3" fill="#f0a08a"/>
+    </svg>`;
+  }
+  $('c0').innerHTML = charSVG('#e2463f', '#b52f29', '#3b2416');
+  $('c1').innerHTML = charSVG('#2f6fe0', '#2153b0', '#1b1b1b');
+
+  // ---------- Pilihan jenis soalan ----------
+  for (const sel of [$('level'), $('lobbyLevel')]) {
+    for (const [k, v] of Object.entries(TT.LEVELS)) sel.add(new Option(v, k));
+    sel.value = 'darab';
+  }
+
+  // ---------- Keadaan ----------
+  let mode = null;           // 'local' | 'online'
+  let mySides = [];          // sisi yang dikawal peranti ini
+  let names = ['Pemain 1', 'Pemain 2'];
+  let conn = null;           // { send(msg), close() }
+  let input = ['', ''];
+  let playing = false;
+  let endsAt = 0, timerId = null;
+
+  // ---------- Panel papan kekunci ----------
+  function buildPanels() {
+    for (const s of [0, 1]) {
+      const panel = $('panel' + s);
+      panel.className = `panel p${s + 1}`;
+      panel.innerHTML = '';
+      if (!mySides.includes(s)) {
+        panel.classList.add('waiting');
+        panel.innerHTML = `<div class="pname">${esc(names[s])}</div><div class="big" id="oppScore${s}">0</div><div>jawapan betul</div>`;
+        continue;
+      }
+      panel.appendChild($('panelTpl').content.cloneNode(true));
+      panel.querySelector('.pname').textContent = names[s];
+      panel.querySelectorAll('.keypad button').forEach(b => {
+        // pointerdown → sentuhan serentak dua pemain berfungsi di smartboard
+        b.addEventListener('pointerdown', e => {
+          e.preventDefault();
+          b.classList.add('pressed');
+          setTimeout(() => b.classList.remove('pressed'), 90);
+          press(s, b.dataset.k);
+        });
+      });
+    }
+    $('game').querySelector('.board').classList.toggle('online', mode === 'online');
+    $('game').querySelector('.board').classList.toggle('local', mode === 'local');
+  }
+  function esc(t) { return String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]); }
+
+  function panelEl(s, sel) { return $('panel' + s).querySelector(sel); }
+  function setQuestion(s, text) { const q = panelEl(s, '.question'); if (q) q.textContent = text; }
+  function setDisplay(s) { const d = panelEl(s, '.display'); if (d) d.textContent = input[s]; }
+
+  function press(s, k) {
+    if (!playing || $('panel' + s).classList.contains('locked')) return;
+    if (k === 'C') { input[s] = ''; sfx.key(); }
+    else if (k === 'OK') {
+      if (input[s] === '') return;
+      conn.send({ t: 'answer', side: s, value: Number(input[s]) });
+    } else if (input[s].length < 4) { input[s] += k; sfx.key(); }
+    setDisplay(s);
+  }
+
+  // Papan kekunci fizikal: mod online → sisi sendiri; mod satu skrin → Pemain 2 (Pemain 1 guna skrin)
+  document.addEventListener('keydown', e => {
+    if (!playing || !$('game').classList.contains('active')) return;
+    const s = mode === 'online' ? mySides[0] : 1;
+    if (/^[0-9]$/.test(e.key)) press(s, e.key);
+    else if (e.key === 'Backspace' || e.key === 'Delete' || e.key === 'Escape') press(s, 'C');
+    else if (e.key === 'Enter') press(s, 'OK');
+  });
+
+  // ---------- Paparan permainan ----------
+  function setPos(pos) {
+    const zone = document.querySelector('.field-zone').clientWidth;
+    const step = (zone * 0.3) / TT.WIN_STEPS;
+    $('tug').style.transform = `translateX(calc(-50% + ${pos * step}px))`;
+  }
+  function pullAnim(s) {
+    const c = $('c' + s);
+    c.classList.add('pull');
+    setTimeout(() => c.classList.remove('pull'), 300);
+  }
+  let lastPos = 0;
+  function applyState(m) {
+    if (m.pos !== lastPos) pullAnim(m.pos < lastPos ? 0 : 1);
+    lastPos = m.pos;
+    setPos(m.pos);
+    [0, 1].forEach(s => {
+      $('s' + s).textContent = m.scores[s];
+      const o = $('oppScore' + s); if (o) o.textContent = m.scores[s];
+    });
+  }
+  function startTimer(ms) {
+    endsAt = Date.now() + ms;
+    clearInterval(timerId);
+    const tick = () => {
+      const left = Math.max(0, Math.ceil((endsAt - Date.now()) / 1000));
+      $('timer').textContent = left;
+      $('timer').classList.toggle('low', left <= 10);
+      if (left === 0) clearInterval(timerId);
+    };
+    tick();
+    timerId = setInterval(tick, 250);
+  }
+
+  let cdTimers = [];
+  function countdown() {
+    cdTimers.forEach(clearTimeout);
+    $('result').classList.remove('show');
+    show('game');
+    input = ['', '']; [0, 1].forEach(setDisplay);
+    [0, 1].forEach(s => setQuestion(s, '…'));
+    applyState({ pos: 0, scores: [0, 0] });
+    $('timer').textContent = TT.GAME_SECONDS;
+    $('timer').classList.remove('low');
+    $('countdown').classList.add('show');
+    ['3', '2', '1', 'Mula!'].forEach((t, i) => cdTimers.push(setTimeout(() => {
+      const el = $('cdText');
+      el.textContent = t;
+      el.style.animation = 'none'; void el.offsetWidth; el.style.animation = '';
+      i < 3 ? sfx.tick() : sfx.go();
+    }, i * 1000)));
+    cdTimers.push(setTimeout(() => $('countdown').classList.remove('show'), 4000));
+  }
+
+  function onMessage(m) {
+    switch (m.t) {
+      case 'countdown': countdown(); break;
+      case 'start':
+        playing = true;
+        $('countdown').classList.remove('show');
+        if (m.qs) m.qs.forEach((q, s) => setQuestion(s, q)); else setQuestion(mySides[0], m.q);
+        startTimer(m.endsIn);
+        break;
+      case 'state': applyState(m); break;
+      case 'result': {
+        const s = m.side ?? mySides[0];
+        const panel = $('panel' + s);
+        input[s] = '';
+        if (m.ok) {
+          sfx.ok();
+          setQuestion(s, m.q);
+          panel.classList.add('ok');
+          setTimeout(() => { panel.classList.remove('ok'); setDisplay(s); }, 150);
+        } else {
+          sfx.bad();
+          panel.classList.add('bad', 'locked');
+          setTimeout(() => { panel.classList.remove('bad', 'locked'); setDisplay(s); }, m.lock);
+        }
+        break;
+      }
+      case 'over': {
+        playing = false;
+        clearInterval(timerId);
+        applyState(m);
+        const w = m.winner;
+        $('resTitle').textContent = w < 0 ? 'Seri!' : `${names[w]} Menang!`;
+        $('resTitle').style.color = w === 0 ? 'var(--p1)' : w === 1 ? 'var(--p2)' : 'var(--ink)';
+        $('resScore').textContent = `${names[0]} ${m.scores[0]} – ${m.scores[1]} ${names[1]}`;
+        $('btnAgain').disabled = false;
+        $('btnAgain').textContent = 'Main Lagi';
+        setTimeout(() => { $('result').classList.add('show'); sfx.win(); }, 400);
+        break;
+      }
+      // --- mesej khas online ---
+      case 'joined':
+        mySides = [m.side];
+        $('lobbyMsg').textContent = '';
+        show('lobby');
+        break;
+      case 'lobby':
+        names = m.names.map((n, i) => n || `Pemain ${i + 1}`);
+        $('lobbyCode').textContent = m.code;
+        $('lp1').textContent = m.names[0] || 'Menunggu…';
+        $('lp2').textContent = m.names[1] || 'Menunggu…';
+        $('lr1').textContent = m.ready[0] ? '✔ Sedia' : '';
+        $('lr2').textContent = m.ready[1] ? '✔ Sedia' : '';
+        $('lobbyLevel').value = m.level;
+        $('lobbyLevel').disabled = mySides[0] !== 0;
+        $('btnReady').disabled = !!m.ready[mySides[0]];
+        $('btnReady').textContent = m.ready[mySides[0]] ? 'Menunggu lawan…' : 'Sedia!';
+        $('gn0').textContent = names[0]; $('gn1').textContent = names[1];
+        if (!$('game').classList.contains('active') || !playing) buildPanels();
+        break;
+      case 'left':
+        playing = false;
+        clearInterval(timerId);
+        cdTimers.forEach(clearTimeout);
+        $('countdown').classList.remove('show');
+        $('result').classList.remove('show');
+        show('lobby');
+        $('lobbyMsg').textContent = 'Lawan telah keluar. Menunggu pemain baharu…';
+        break;
+      case 'error':
+        $('menuErr').textContent = m.msg;
+        break;
+    }
+  }
+
+  // ---------- Enjin mod satu skrin (meniru pelayan) ----------
+  function localEngine(level) {
+    let pos = 0, scores = [0, 0], q = [], lockUntil = [0, 0], phase = 'idle', timers = [];
+    const emit = m => setTimeout(() => onMessage(m), 0);
+    function clear() { timers.forEach(clearTimeout); timers = []; }
+    function end() {
+      if (phase !== 'play') return;
+      clear(); phase = 'over';
+      emit({ t: 'over', winner: TT.winnerFromPos(pos), pos, scores: [...scores] });
+    }
+    function start() {
+      clear();
+      pos = 0; scores = [0, 0]; lockUntil = [0, 0]; phase = 'countdown';
+      emit({ t: 'countdown' });
+      timers.push(setTimeout(() => {
+        phase = 'play';
+        q = [TT.makeQuestion(level), TT.makeQuestion(level)];
+        emit({ t: 'start', endsIn: TT.GAME_SECONDS * 1000, qs: q.map(x => x.text) });
+        timers.push(setTimeout(end, TT.GAME_SECONDS * 1000));
+      }, 4000));
+    }
+    return {
+      send(m) {
+        if (m.t === 'ready') start();
+        if (m.t !== 'answer' || phase !== 'play') return;
+        const s = m.side, now = Date.now();
+        if (now < lockUntil[s]) return;
+        if (m.value === q[s].answer) {
+          scores[s]++; pos += s === 0 ? -1 : 1;
+          q[s] = TT.makeQuestion(level);
+          emit({ t: 'result', side: s, ok: true, q: q[s].text });
+          emit({ t: 'state', pos, scores: [...scores] });
+          if (Math.abs(pos) >= TT.WIN_STEPS) end();
+        } else {
+          lockUntil[s] = now + TT.WRONG_LOCK_MS;
+          emit({ t: 'result', side: s, ok: false, lock: TT.WRONG_LOCK_MS });
+        }
+      },
+      close() { clear(); phase = 'idle'; },
+    };
+  }
+
+  // ---------- Sambungan online ----------
+  function onlineConn(first) {
+    const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+    let ws;
+    try { ws = new WebSocket(`${proto}://${location.host}`); } catch (e) { ws = null; }
+    if (!ws || location.protocol === 'file:') {
+      $('menuErr').textContent = 'Mod online perlukan pelayan (jalankan: npm start).';
+      return null;
+    }
+    let closedByUs = false;
+    ws.onopen = () => ws.send(JSON.stringify(first));
+    ws.onmessage = e => onMessage(JSON.parse(e.data));
+    ws.onerror = () => { $('menuErr').textContent = 'Tidak dapat sambung ke pelayan.'; };
+    ws.onclose = () => {
+      if (closedByUs) return;
+      playing = false;
+      $('result').classList.remove('show');
+      $('countdown').classList.remove('show');
+      show('menu');
+      $('menuErr').textContent = 'Sambungan terputus.';
+    };
+    return {
+      send(m) { if (ws.readyState === 1) ws.send(JSON.stringify(m)); },
+      close() { closedByUs = true; ws.close(); },
+    };
+  }
+
+  function toMenu() {
+    if (conn) conn.close();
+    conn = null; playing = false; mode = null;
+    clearInterval(timerId); cdTimers.forEach(clearTimeout);
+    $('result').classList.remove('show'); $('countdown').classList.remove('show');
+    show('menu');
+  }
+
+  // ---------- Butang ----------
+  $('btnLocal').onclick = () => {
+    $('menuErr').textContent = '';
+    mode = 'local'; mySides = [0, 1];
+    names = [$('n1').value.trim() || 'Pemain 1', $('n2').value.trim() || 'Pemain 2'];
+    $('gn0').textContent = names[0]; $('gn1').textContent = names[1];
+    conn = localEngine($('level').value);
+    buildPanels();
+    conn.send({ t: 'ready' });
+  };
+  if ($('btnCreate')) { // tiada dalam versi HTML offline
+    $('btnCreate').onclick = () => {
+      $('menuErr').textContent = '';
+      mode = 'online';
+      conn = onlineConn({ t: 'create', name: $('nOnline').value.trim(), level: $('level').value });
+    };
+    $('btnJoin').onclick = () => {
+      $('menuErr').textContent = '';
+      const code = $('roomCode').value.trim();
+      if (!/^\d{4}$/.test(code)) { $('menuErr').textContent = 'Masukkan kod 4 digit.'; return; }
+      mode = 'online';
+      conn = onlineConn({ t: 'join', code, name: $('nOnline').value.trim() });
+    };
+    $('roomCode').addEventListener('keydown', e => { if (e.key === 'Enter') $('btnJoin').click(); });
+  }
+  $('btnReady').onclick = () => conn && conn.send({ t: 'ready' });
+  $('lobbyLevel').onchange = () => conn && conn.send({ t: 'level', level: $('lobbyLevel').value });
+  $('btnLeave').onclick = toMenu;
+  $('btnQuit').onclick = () => { if (confirm('Keluar dari permainan?')) toMenu(); };
+  $('btnMenu').onclick = toMenu;
+  $('btnAgain').onclick = () => {
+    if (mode === 'local') conn.send({ t: 'ready' });
+    else {
+      conn.send({ t: 'ready' });
+      $('result').classList.remove('show');
+      show('lobby');
+    }
+  };
+
+  // Kod bilik dalam URL: ?bilik=1234
+  const urlCode = new URLSearchParams(location.search).get('bilik');
+  if (urlCode && $('roomCode')) $('roomCode').value = urlCode;
+
+  window.addEventListener('resize', () => setPos(lastPos));
+})();
+
+</script>
+</body>
+</html>

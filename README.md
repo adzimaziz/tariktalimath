@@ -28,6 +28,10 @@ Untuk main online antara peranti, deploy ke mana-mana hos Node.js yang menyokong
 
 Pautan terus ke bilik: `http://host/?bilik=1234`
 
+## Main offline (1 fail HTML)
+Muat turun **`tarik-tali-matematik.html`** ke phone/komputer dan buka dengan pelayar (Chrome/Safari).
+Tak perlu internet atau pelayan. Jana semula selepas ubah kod: `node build-offline.js`.
+
 ## Main di phone (GitHub Pages)
 1. Merge branch ini ke `main`.
 2. Di GitHub: **Settings → Pages → Source: GitHub Actions**.

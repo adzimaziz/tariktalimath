@@ -326,19 +326,21 @@
     buildPanels();
     conn.send({ t: 'ready' });
   };
-  $('btnCreate').onclick = () => {
-    $('menuErr').textContent = '';
-    mode = 'online';
-    conn = onlineConn({ t: 'create', name: $('nOnline').value.trim(), level: $('level').value });
-  };
-  $('btnJoin').onclick = () => {
-    $('menuErr').textContent = '';
-    const code = $('roomCode').value.trim();
-    if (!/^\d{4}$/.test(code)) { $('menuErr').textContent = 'Masukkan kod 4 digit.'; return; }
-    mode = 'online';
-    conn = onlineConn({ t: 'join', code, name: $('nOnline').value.trim() });
-  };
-  $('roomCode').addEventListener('keydown', e => { if (e.key === 'Enter') $('btnJoin').click(); });
+  if ($('btnCreate')) { // tiada dalam versi HTML offline
+    $('btnCreate').onclick = () => {
+      $('menuErr').textContent = '';
+      mode = 'online';
+      conn = onlineConn({ t: 'create', name: $('nOnline').value.trim(), level: $('level').value });
+    };
+    $('btnJoin').onclick = () => {
+      $('menuErr').textContent = '';
+      const code = $('roomCode').value.trim();
+      if (!/^\d{4}$/.test(code)) { $('menuErr').textContent = 'Masukkan kod 4 digit.'; return; }
+      mode = 'online';
+      conn = onlineConn({ t: 'join', code, name: $('nOnline').value.trim() });
+    };
+    $('roomCode').addEventListener('keydown', e => { if (e.key === 'Enter') $('btnJoin').click(); });
+  }
   $('btnReady').onclick = () => conn && conn.send({ t: 'ready' });
   $('lobbyLevel').onchange = () => conn && conn.send({ t: 'level', level: $('lobbyLevel').value });
   $('btnLeave').onclick = toMenu;
@@ -355,7 +357,7 @@
 
   // Kod bilik dalam URL: ?bilik=1234
   const urlCode = new URLSearchParams(location.search).get('bilik');
-  if (urlCode) $('roomCode').value = urlCode;
+  if (urlCode && $('roomCode')) $('roomCode').value = urlCode;
 
   window.addEventListener('resize', () => setPos(lastPos));
 })();
