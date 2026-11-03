@@ -69,7 +69,7 @@ select, input {
 #btnReady { margin-top: 8px; min-width: 200px; }
 
 /* GAME */
-#game.active { padding: 10px; }
+#game.active { padding: 10px; position: relative; }
 .topbar { width: 100%; display: flex; align-items: center; justify-content: space-between; }
 .topbar .title { font-weight: bold; font-size: clamp(16px, 2.4vw, 26px); }
 .timer { font-size: 28px; font-weight: bold; background: #fff; border-radius: 12px; padding: 2px 14px; min-width: 64px; text-align: center; }
@@ -142,4 +142,47 @@ select, input {
   .board.online { grid-template-columns: 1fr; grid-template-areas: "arena" "me"; }
   .board.online .panel.waiting { display: none; }
   .board.online .panel:not(.waiting) { grid-area: me; }
+}
+
+/* ---------- 1 phone, 2 pemain (potret): berhadapan ---------- */
+@media (max-width: 820px) and (orientation: portrait) {
+  #game.active { padding: 6px; height: 100dvh; }
+  .topbar { position: absolute; top: 50%; left: 6px; right: 6px; transform: translateY(-50%); z-index: 2; pointer-events: none; }
+  .topbar > * { pointer-events: auto; }
+  .topbar .title { display: none; }
+  .timer { font-size: 22px; padding: 0 10px; min-width: 48px; }
+  .board.local {
+    grid-template-columns: 1fr; grid-template-rows: 1fr auto 1fr;
+    grid-template-areas: "p1" "arena" "p2"; height: 100%; gap: 6px; align-items: stretch;
+  }
+  .board.local #panel0 { transform: rotate(180deg); }
+  .board.local .panel { justify-content: space-between; min-height: 0; }
+  .board.local .pname { font-size: 14px; }
+  .board.local .question { font-size: 30px; padding: 4px; }
+  .board.local .display { height: 44px; line-height: 38px; font-size: 28px; }
+  .board.local .keypad { flex: 1; gap: 6px; grid-auto-rows: 1fr; min-height: 0; }
+  .board.local .keypad button { padding: 0; font-size: 26px; }
+  .board.local .arena { gap: 0; }
+  .board.local .scores { display: none; }
+  .board.local .names-row { display: none; }
+  .board.local .field-zone { height: 96px; }
+  .board.local .char { width: 42px; height: 60px; }
+  .board.local .rope { margin-bottom: 26px; }
+}
+
+/* Phone melintang: kecilkan papan kekunci */
+@media (max-height: 500px) and (orientation: landscape) {
+  #game.active { padding: 4px; }
+  .topbar .title { font-size: 16px; }
+  .board { grid-template-columns: minmax(170px, 240px) 1fr minmax(170px, 240px); gap: 6px; }
+  .panel { padding: 6px; gap: 4px; }
+  .question { font-size: 22px; padding: 2px; }
+  .display { height: 34px; line-height: 28px; font-size: 22px; }
+  .keypad { gap: 4px; }
+  .keypad button { font-size: 20px; padding: 4px 0; }
+  .pname, .hint { display: none; }
+  .field-zone { height: 130px; }
+  .char { width: 50px; height: 72px; }
+  .rope { margin-bottom: 32px; }
+  .scores { font-size: 26px; }
 }

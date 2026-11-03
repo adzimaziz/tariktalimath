@@ -84,6 +84,7 @@
       });
     }
     $('game').querySelector('.board').classList.toggle('online', mode === 'online');
+    $('game').querySelector('.board').classList.toggle('local', mode === 'local');
   }
   function esc(t) { return String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]); }
 
