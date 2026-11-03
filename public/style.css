@@ -165,9 +165,14 @@ select, input {
   .board.local .arena { gap: 0; }
   .board.local .scores { display: none; }
   .board.local .names-row { display: none; }
-  .board.local .field-zone { height: 96px; }
-  .board.local .char { width: 42px; height: 60px; }
-  .board.local .rope { margin-bottom: 26px; }
+  /* Budak merah terbalik: berdiri di tepi atas, menghadap Pemain 1 */
+  .board.local .field-zone { height: 92px; box-shadow: inset 0 -10px 0 #7cb85a, inset 0 10px 0 #7cb85a; }
+  .board.local .tug { top: 0; bottom: 0; align-items: center; }
+  .board.local .char { width: 52px; height: 75px; }
+  .board.local .char.p1 { align-self: flex-start; margin-top: 8px; transform-origin: top center; transform: scaleY(-1) translateY(-75px) rotate(-8deg); }
+  .board.local .char.p1.pull { transform: scaleY(-1) translateY(-75px) rotate(-22deg) translateX(-6px); }
+  .board.local .char.p2 { align-self: flex-end; margin-bottom: 8px; }
+  .board.local .rope { margin: 0 -6px; }
 }
 
 /* Phone melintang: kecilkan papan kekunci */
