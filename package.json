@@ -1,0 +1,14 @@
+{
+  "name": "tariktalimath",
+  "version": "1.0.0",
+  "description": "Tarik Tali Matematik - permainan tarik tali matematik 2 pemain (satu skrin & online)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": { "node": ">=18" },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "license": "MIT"
+}

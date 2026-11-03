@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ms">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <title>Tarik Tali Matematik</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- MENU -->
+  <section id="menu" class="screen active">
+    <h1>Tarik Tali <span>Matematik</span></h1>
+    <p class="sub">Jawab soalan dengan pantas untuk menarik tali ke pihak anda!</p>
+
+    <div class="field">
+      <label for="level">Jenis soalan</label>
+      <select id="level"></select>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <h2>Satu Skrin</h2>
+        <p>2 pemain berkongsi satu skrin / smartboard.</p>
+        <div class="names">
+          <input id="n1" placeholder="Nama Pemain 1" maxlength="14">
+          <input id="n2" placeholder="Nama Pemain 2" maxlength="14">
+        </div>
+        <button class="btn red" id="btnLocal">Main</button>
+      </div>
+      <div class="card">
+        <h2>Online</h2>
+        <p>Main dari 2 peranti berbeza dengan kod bilik.</p>
+        <input id="nOnline" placeholder="Nama anda" maxlength="14">
+        <button class="btn blue" id="btnCreate">Cipta Bilik</button>
+        <div class="join">
+          <input id="roomCode" placeholder="Kod bilik" inputmode="numeric" maxlength="4">
+          <button class="btn" id="btnJoin">Sertai</button>
+        </div>
+        <p class="err" id="menuErr"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- LOBBY -->
+  <section id="lobby" class="screen">
+    <h2>Kod Bilik</h2>
+    <div class="code" id="lobbyCode">----</div>
+    <p class="sub">Kongsi kod ini dengan lawan anda.</p>
+    <div class="lobbyPlayers">
+      <div class="lp p1"><b id="lp1">Menunggu…</b><small id="lr1"></small></div>
+      <div class="vs">VS</div>
+      <div class="lp p2"><b id="lp2">Menunggu…</b><small id="lr2"></small></div>
+    </div>
+    <div class="field" id="lobbyLevelWrap">
+      <label for="lobbyLevel">Jenis soalan</label>
+      <select id="lobbyLevel"></select>
+    </div>
+    <button class="btn red" id="btnReady">Sedia!</button>
+    <button class="btn ghost" id="btnLeave">Keluar</button>
+    <p class="err" id="lobbyMsg"></p>
+  </section>
+
+  <!-- GAME -->
+  <section id="game" class="screen">
+    <header class="topbar">
+      <button class="btn ghost small" id="btnQuit">✕</button>
+      <div class="title">Tarik Tali Matematik</div>
+      <div class="timer" id="timer">60</div>
+    </header>
+
+    <div class="board">
+      <div class="panel p1" id="panel0"></div>
+
+      <div class="arena">
+        <div class="scores"><span id="s0" class="sc p1">0</span><span id="s1" class="sc p2">0</span></div>
+        <div class="field-zone">
+          <div class="zone left"></div><div class="centerline"></div><div class="zone right"></div>
+          <div class="tug" id="tug">
+            <div class="char p1" id="c0"></div>
+            <div class="rope"><div class="flag"></div></div>
+            <div class="char p2" id="c1"></div>
+          </div>
+        </div>
+        <div class="names-row"><span id="gn0" class="p1"></span><span id="gn1" class="p2"></span></div>
+        <p class="hint">Jawab soalan untuk menarik tali!</p>
+      </div>
+
+      <div class="panel p2" id="panel1"></div>
+    </div>
+  </section>
+
+  <!-- OVERLAYS -->
+  <div class="overlay" id="countdown"><div id="cdText">3</div></div>
+  <div class="overlay" id="result">
+    <div class="resultBox">
+      <div class="trophy">🏆</div>
+      <h2 id="resTitle">Pemain 1 Menang!</h2>
+      <p id="resScore"></p>
+      <button class="btn red" id="btnAgain">Main Lagi</button>
+      <button class="btn ghost" id="btnMenu">Menu</button>
+    </div>
+  </div>
+
+  <template id="panelTpl">
+    <div class="pname"></div>
+    <div class="question">? </div>
+    <div class="display"></div>
+    <div class="keypad">
+      <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button>
+      <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button>
+      <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button>
+      <button data-k="C" class="kc">C</button><button data-k="0">0</button><button data-k="OK" class="kok">OK</button>
+    </div>
+  </template>
+
+  <script src="shared.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
